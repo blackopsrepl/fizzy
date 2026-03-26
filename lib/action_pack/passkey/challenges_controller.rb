@@ -16,13 +16,24 @@
 # via +config.action_pack.passkey.routes_prefix+).
 #
 class ActionPack::Passkey::ChallengesController < ActionController::Base
+  COOKIE_NAME = :action_pack_passkey_challenge
+
   include ActionPack::Passkey::Request
 
   # Generates a fresh challenge and returns it as JSON. Accepts an optional
   # +purpose+ parameter ("registration" or "authentication") to select the
   # appropriate challenge expiration. Defaults to "authentication".
   def create
-    render json: { challenge: create_passkey_challenge }
+    challenge = create_passkey_challenge
+
+    cookies.encrypted[COOKIE_NAME] = {
+      value: challenge,
+      httponly: true,
+      same_site: :lax,
+      secure: !request.local? && request.ssl?
+    }
+
+    render json: { challenge: challenge }
   end
 
   private

@@ -31,6 +31,10 @@ Rails.application.routes.draw do
       resource :involvement
       resource :publication
       resource :entropy
+      resource :work_plan, only: [] do
+        get :preview, on: :member
+        post :apply, on: :member
+      end
 
       namespace :columns do
         resource :not_now

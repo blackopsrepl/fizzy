@@ -27,12 +27,13 @@ import { register, authenticate } from "lib/action_pack/webauthn"
 class PasskeyButton extends HTMLElement {
   connectedCallback() {
     this.button.addEventListener("click", this.#perform)
+    document.addEventListener("turbo:before-cache", this.#reset)
   }
 
   disconnectedCallback() {
     this.button.removeEventListener("click", this.#perform)
-    this.button.disabled = false
-    this.#hideErrors()
+    document.removeEventListener("turbo:before-cache", this.#reset)
+    this.#reset()
   }
 
   get button() {
@@ -85,6 +86,11 @@ class PasskeyButton extends HTMLElement {
   #showError(type) {
     const el = this.querySelector(`[data-passkey-error="${type}"]`)
     if (el) el.hidden = false
+  }
+
+  #reset = () => {
+    if (this.button) this.button.disabled = false
+    this.#hideErrors()
   }
 
   #hideErrors() {

@@ -79,10 +79,11 @@ class ActionPack::WebAuthn::PublicKeyCredential
     # PublicKeyCredential with the registered credential data.
     #
     # Raises +InvalidResponseError+ if the attestation is invalid.
-    def register(params, origin: ActionPack::WebAuthn::Current.origin)
+    def register(params, challenge: ActionPack::WebAuthn::Current.challenge, origin: ActionPack::WebAuthn::Current.origin)
       response = ActionPack::WebAuthn::Authenticator::AttestationResponse.new(
         client_data_json: params[:client_data_json],
         attestation_object: params[:attestation_object],
+        challenge: challenge,
         origin: origin
       )
 
@@ -124,12 +125,13 @@ class ActionPack::WebAuthn::PublicKeyCredential
   # Updates +sign_count+ and +backed_up+ on success.
   #
   # Raises +InvalidResponseError+ if the assertion is invalid.
-  def authenticate(params, origin: ActionPack::WebAuthn::Current.origin)
+  def authenticate(params, challenge: ActionPack::WebAuthn::Current.challenge, origin: ActionPack::WebAuthn::Current.origin)
     response = ActionPack::WebAuthn::Authenticator::AssertionResponse.new(
       client_data_json: params[:client_data_json],
       authenticator_data: params[:authenticator_data],
       signature: params[:signature],
       credential: self,
+      challenge: challenge,
       origin: origin
     )
 

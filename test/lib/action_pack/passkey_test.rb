@@ -18,6 +18,7 @@ class ActionPack::PasskeyTest < ActiveSupport::TestCase
 
   test "authenticate with valid assertion" do
     challenge = ActionPack::Passkey.authentication_options(credentials: [ @passkey ]).challenge
+    ActionPack::WebAuthn::Current.challenge = challenge
     assertion = build_assertion(challenge: challenge)
 
     result = @passkey.authenticate(assertion)
@@ -27,6 +28,7 @@ class ActionPack::PasskeyTest < ActiveSupport::TestCase
 
   test "authenticate returns nil with invalid signature" do
     challenge = ActionPack::Passkey.authentication_options(credentials: [ @passkey ]).challenge
+    ActionPack::WebAuthn::Current.challenge = challenge
     assertion = build_assertion(challenge: challenge)
     assertion[:signature] = Base64.urlsafe_encode64("invalid", padding: false)
 
@@ -35,6 +37,7 @@ class ActionPack::PasskeyTest < ActiveSupport::TestCase
 
   test "authenticate updates sign count and backed_up" do
     challenge = ActionPack::Passkey.authentication_options(credentials: [ @passkey ]).challenge
+    ActionPack::WebAuthn::Current.challenge = challenge
     assertion = build_assertion(challenge: challenge, sign_count: 5, backed_up: true)
 
     @passkey.authenticate(assertion)

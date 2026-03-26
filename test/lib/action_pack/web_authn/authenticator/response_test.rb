@@ -18,6 +18,7 @@ class ActionPack::WebAuthn::Authenticator::ResponseTest < ActiveSupport::TestCas
     @response = TestableResponse.new(
       client_data_json: @client_data_json,
       authenticator_data: @authenticator_data,
+      challenge: @challenge,
       origin: @origin
     )
   end
@@ -50,6 +51,7 @@ class ActionPack::WebAuthn::Authenticator::ResponseTest < ActiveSupport::TestCas
     response = TestableResponse.new(
       client_data_json: client_data_json,
       authenticator_data: @authenticator_data,
+      challenge: @challenge,
       origin: @origin
     )
 
@@ -71,6 +73,7 @@ class ActionPack::WebAuthn::Authenticator::ResponseTest < ActiveSupport::TestCas
     response = TestableResponse.new(
       client_data_json: client_data_json,
       authenticator_data: @authenticator_data,
+      challenge: @challenge,
       origin: @origin
     )
 
@@ -78,7 +81,7 @@ class ActionPack::WebAuthn::Authenticator::ResponseTest < ActiveSupport::TestCas
       response.validate!
     end
 
-    assert_match /Challenge (is invalid|has expired)/, error.message
+    assert_equal "Challenge does not match", error.message
   end
 
   test "validate! raises when origin does not match" do
@@ -102,6 +105,7 @@ class ActionPack::WebAuthn::Authenticator::ResponseTest < ActiveSupport::TestCas
     response = TestableResponse.new(
       client_data_json: client_data_json,
       authenticator_data: @authenticator_data,
+      challenge: @challenge,
       origin: @origin
     )
 
@@ -127,6 +131,7 @@ class ActionPack::WebAuthn::Authenticator::ResponseTest < ActiveSupport::TestCas
     response = TestableResponse.new(
       client_data_json: @client_data_json,
       authenticator_data: wrong_rp_data,
+      challenge: @challenge,
       origin: @origin
     )
 
@@ -148,6 +153,7 @@ class ActionPack::WebAuthn::Authenticator::ResponseTest < ActiveSupport::TestCas
     response = TestableResponse.new(
       client_data_json: client_data_json,
       authenticator_data: @authenticator_data,
+      challenge: @challenge,
       origin: @origin
     )
 

@@ -43,7 +43,9 @@
 # == Before Action
 #
 # Automatically populates +ActionPack::WebAuthn::Current+ with the request
-# host and origin.
+# host, origin, and challenge (read from the encrypted cookie set by
+# ChallengesController). The cookie is deleted after being read to prevent
+# replay.
 #
 module ActionPack::Passkey::Request
   extend ActiveSupport::Concern
@@ -52,6 +54,8 @@ module ActionPack::Passkey::Request
     before_action do
       ActionPack::WebAuthn::Current.host = request.host
       ActionPack::WebAuthn::Current.origin = request.base_url
+      ActionPack::WebAuthn::Current.challenge = cookies.encrypted[ActionPack::Passkey::ChallengesController::COOKIE_NAME]
+      cookies.delete(ActionPack::Passkey::ChallengesController::COOKIE_NAME)
     end
   end
 

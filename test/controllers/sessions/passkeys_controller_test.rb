@@ -98,4 +98,23 @@ class Sessions::PasskeysControllerTest < ActionDispatch::IntegrationTest
       assert_equal "That passkey didn't work. Try again.", @response.parsed_body["message"]
     end
   end
+
+  test "rejects replayed assertion with consumed challenge" do
+    untenanted do
+      challenge = request_webauthn_challenge
+      params = build_assertion_params(challenge: challenge, credential: @credential)
+
+      post session_passkey_url, params: params
+      assert_response :redirect
+      assert cookies[:session_token].present?
+
+      delete session_path
+      assert_not cookies[:session_token].present?
+
+      post session_passkey_url, params: params
+      assert_redirected_to new_session_path
+      assert_not cookies[:session_token].present?
+      assert_equal "That passkey didn't work. Try again.", flash[:alert]
+    end
+  end
 end

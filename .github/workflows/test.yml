@@ -54,7 +54,7 @@ jobs:
 
     steps:
       - name: Install system packages
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libsqlite3-0 libvips curl ffmpeg
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y cargo rustc libsqlite3-0 libvips curl ffmpeg
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -64,6 +64,9 @@ jobs:
         with:
           ruby-version: .ruby-version
           bundler-cache: true
+
+      - name: Run Rust planner tests
+        run: cargo test --manifest-path tools/solverforge-board-planner/Cargo.toml
 
       - name: Run tests
         run: bin/rails db:setup test

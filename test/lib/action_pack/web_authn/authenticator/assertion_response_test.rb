@@ -27,6 +27,7 @@ class ActionPack::WebAuthn::Authenticator::AssertionResponseTest < ActiveSupport
       authenticator_data: @authenticator_data,
       signature: @signature,
       credential: @credential,
+      challenge: @challenge,
       origin: @origin
     )
   end
@@ -55,6 +56,7 @@ class ActionPack::WebAuthn::Authenticator::AssertionResponseTest < ActiveSupport
       authenticator_data: @authenticator_data,
       signature: sign(@authenticator_data, client_data_json),
       credential: @credential,
+      challenge: @challenge,
       origin: @origin
     )
 
@@ -71,6 +73,7 @@ class ActionPack::WebAuthn::Authenticator::AssertionResponseTest < ActiveSupport
       authenticator_data: @authenticator_data,
       signature: Base64.urlsafe_encode64("invalid-signature", padding: false),
       credential: @credential,
+      challenge: @challenge,
       origin: @origin
     )
 
@@ -95,6 +98,7 @@ class ActionPack::WebAuthn::Authenticator::AssertionResponseTest < ActiveSupport
       authenticator_data: authenticator_data,
       signature: sign(authenticator_data, client_data_json),
       credential: @credential,
+      challenge: @challenge,
       origin: @origin
     )
 
@@ -102,7 +106,7 @@ class ActionPack::WebAuthn::Authenticator::AssertionResponseTest < ActiveSupport
       response.validate!
     end
 
-    assert_match /Challenge (is invalid|has expired)/, error.message
+    assert_equal "Challenge does not match", error.message
   end
 
   test "validate! raises when origin does not match" do
@@ -122,6 +126,7 @@ class ActionPack::WebAuthn::Authenticator::AssertionResponseTest < ActiveSupport
       authenticator_data: authenticator_data,
       signature: sign(authenticator_data, @client_data_json),
       credential: @credential,
+      challenge: @challenge,
       origin: @origin,
       user_verification: :preferred
     )
@@ -138,6 +143,7 @@ class ActionPack::WebAuthn::Authenticator::AssertionResponseTest < ActiveSupport
       authenticator_data: authenticator_data,
       signature: sign(authenticator_data, @client_data_json),
       credential: @credential,
+      challenge: @challenge,
       origin: @origin,
       user_verification: :required
     )
@@ -154,6 +160,7 @@ class ActionPack::WebAuthn::Authenticator::AssertionResponseTest < ActiveSupport
       authenticator_data: authenticator_data,
       signature: sign(authenticator_data, @client_data_json),
       credential: @credential,
+      challenge: @challenge,
       origin: @origin,
       user_verification: :required
     )
