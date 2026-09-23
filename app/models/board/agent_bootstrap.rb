@@ -48,7 +48,7 @@ class Board::AgentBootstrap < ApplicationRecord
       end.update!(involvement: involvement)
 
       access_token = identity.access_tokens.create!(
-        description: "Fizzy CLI#{profile_name.present? ? " (#{profile_name})" : " (#{name})"}",
+        description: "Agent bootstrap#{profile_name.present? ? " (#{profile_name})" : " (#{name})"}",
         permission: permission
       )
 

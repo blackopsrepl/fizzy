@@ -9,6 +9,7 @@ a bot to perform various actions for you.
 - [Identity](sections/identity.md)
 - [Account](sections/account.md)
 - [Boards](sections/boards.md)
+- [Agent Bootstraps](sections/agent-bootstraps.md)
 - [Columns](sections/columns.md)
 - [Cards](sections/cards.md)
 - [Pins](sections/pins.md)

@@ -1,7 +1,7 @@
 module AgentBootstrapsHelper
   require "shellwords"
 
-  AGENT_BOOTSTRAP_SKILL_NAME = "fizzy-cli"
+  FIZZY_CLI_INSTALL_COMMAND = "curl -fsSL https://raw.githubusercontent.com/basecamp/fizzy-cli/master/scripts/install.sh | bash"
 
   def link_to_agent_bootstrap(board)
     link_to new_board_agent_bootstrap_path(board),
@@ -15,35 +15,40 @@ module AgentBootstrapsHelper
     agent_bootstrap_claim_url(token: agent_bootstrap.token, script_name: nil)
   end
 
-  def agent_bootstrap_skill_url_for(agent_bootstrap)
-    agent_bootstrap_skill_url(token: agent_bootstrap.token, script_name: nil)
-  end
-
-  def agent_bootstrap_setup_command(agent_bootstrap)
-    suggested_email = "agent+#{agent_bootstrap.token.to_s[0, 8]}@example.com"
-    suggested_name = "#{agent_bootstrap.board.name} Agent"
+  def agent_bootstrap_claim_command(agent_bootstrap)
+    payload = { agent_bootstrap: { email_address: agent_bootstrap_suggested_email(agent_bootstrap), name: agent_bootstrap_suggested_name(agent_bootstrap) } }.to_json
 
     Shellwords.shelljoin([
-      "fizzy", "auth", "bootstrap", agent_bootstrap_claim_url_for(agent_bootstrap),
-      "--email", suggested_email,
-      "--name", suggested_name
+      "curl", "-fsSL", "-X", "POST", agent_bootstrap_claim_url_for(agent_bootstrap),
+      "-H", "Content-Type: application/json",
+      "-H", "Accept: application/json",
+      "-d", payload
     ])
   end
 
-  def agent_bootstrap_skill_name
-    AGENT_BOOTSTRAP_SKILL_NAME
-  end
-
-  def agent_bootstrap_skill_block(agent_bootstrap)
+  def agent_bootstrap_agent_prompt(agent_bootstrap)
     <<~TEXT.strip
-      Download the Fizzy CLI skill from:
-      #{agent_bootstrap_skill_url_for(agent_bootstrap)}
+      Install the Fizzy CLI:
+      #{FIZZY_CLI_INSTALL_COMMAND}
 
-      Load that skill into your agent, then run:
-      #{agent_bootstrap_setup_command(agent_bootstrap)}
+      Claim this one-time bootstrap; the JSON response carries the access token:
+      #{agent_bootstrap_claim_command(agent_bootstrap)}
 
-      Verify the bootstrap with:
-      fizzy whoami --json
+      Configure the CLI with the token, account slug, and base URL from the response:
+      fizzy auth login TOKEN --profile ACCOUNT_SLUG --account ACCOUNT_SLUG --api-url BASE_URL
+
+      Verify access and load the Fizzy skill:
+      fizzy auth status
+      fizzy skill install
     TEXT
   end
+
+  private
+    def agent_bootstrap_suggested_email(agent_bootstrap)
+      "agent+#{agent_bootstrap.token.to_s[0, 8]}@example.com"
+    end
+
+    def agent_bootstrap_suggested_name(agent_bootstrap)
+      "#{agent_bootstrap.board.name} Agent"
+    end
 end

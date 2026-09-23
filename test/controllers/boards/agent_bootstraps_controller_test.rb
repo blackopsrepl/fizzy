@@ -21,36 +21,34 @@ class Boards::AgentBootstrapsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :created
     body = @response.parsed_body
-    assert body["bootstrap_url"].present?
-    assert body["skill_url"].present?
-    assert body["setup_command"].present?
-    assert_equal "fizzy-cli", body["skill_name"]
-    assert_match %r{/agent_bootstrap/[^/]+/claim\z}, body["bootstrap_url"]
-    assert_match %r{/agent_bootstrap/[^/]+/skill\z}, body["skill_url"]
-    assert_not_includes body["bootstrap_url"], "/#{board.account.slug}/"
-    assert_not_includes body["skill_url"], "/#{board.account.slug}/"
-    assert_includes body["skill_block"], body["skill_url"]
-    assert_includes body["skill_block"], body["setup_command"]
+    assert body["claim_url"].present?
+    assert body["claim_command"].present?
+    assert body["agent_prompt"].present?
+    assert_match %r{/agent_bootstrap/[^/]+/claim\z}, body["claim_url"]
+    assert_not_includes body["claim_url"], "/#{board.account.slug}/"
+    assert_includes body["agent_prompt"], body["claim_url"]
+    assert_includes body["agent_prompt"], body["claim_command"]
+    assert_includes body["agent_prompt"], "fizzy auth login"
+    assert_includes body["agent_prompt"], "fizzy skill install"
     assert_equal "watching", body["involvement"]
     assert_equal board.id, body.dig("board", "id")
   end
 
-  test "setup command shell-escapes board-derived arguments" do
+  test "claim command shell-escapes board-derived arguments" do
     board = boards(:writebook)
     board.update!(name: %(Danger "$(touch /tmp/nope)" `rm -rf /`))
 
     post board_agent_bootstraps_path(board), as: :json
 
     assert_response :created
-    command = @response.parsed_body.fetch("setup_command")
+    command = @response.parsed_body.fetch("claim_command")
     argv = Shellwords.split(command)
 
-    assert_equal "fizzy", argv[0]
-    assert_equal "auth", argv[1]
-    assert_equal "bootstrap", argv[2]
-    assert_equal "--email", argv[4]
-    assert_match(/\Aagent\+[A-Za-z0-9]{8}@example\.com\z/, argv[5])
-    assert_equal "#{board.name} Agent", argv.last
+    assert_equal "curl", argv[0]
+    payload = JSON.parse(argv[argv.index("-d") + 1])
+
+    assert_match(/\Aagent\+[A-Za-z0-9]{8}@example\.com\z/, payload.dig("agent_bootstrap", "email_address"))
+    assert_equal "#{board.name} Agent", payload.dig("agent_bootstrap", "name")
   end
 
   test "new requires account admin" do
@@ -71,8 +69,9 @@ class Boards::AgentBootstrapsControllerTest < ActionDispatch::IntegrationTest
     get board_agent_bootstrap_path(bootstrap.board, bootstrap)
     assert_response :success
     assert_in_body bootstrap.token
-    assert_in_body "Copy skill URL"
+    assert_in_body "Copy claim URL"
     assert_in_body "Copy agent prompt"
+    assert_in_body "fizzy auth login"
   end
 
   test "show requires account admin" do
