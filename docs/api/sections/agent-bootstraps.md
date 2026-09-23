@@ -14,6 +14,7 @@ Claim the bootstrap with the claim endpoint below, then hand the returned token 
 
 ```bash
 fizzy auth login TOKEN --profile ACCOUNT_SLUG --account ACCOUNT_SLUG --api-url BASE_URL
+export FIZZY_BOARD=BOARD_ID
 fizzy skill install
 ```
 

@@ -29,6 +29,7 @@ class Boards::AgentBootstrapsControllerTest < ActionDispatch::IntegrationTest
     assert_includes body["agent_prompt"], body["claim_url"]
     assert_includes body["agent_prompt"], body["claim_command"]
     assert_includes body["agent_prompt"], "fizzy auth login"
+    assert_includes body["agent_prompt"], "FIZZY_BOARD"
     assert_includes body["agent_prompt"], "fizzy skill install"
     assert_equal "watching", body["involvement"]
     assert_equal board.id, body.dig("board", "id")

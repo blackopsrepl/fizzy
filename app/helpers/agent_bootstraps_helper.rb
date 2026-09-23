@@ -31,11 +31,12 @@ module AgentBootstrapsHelper
       Install the Fizzy CLI:
       #{FIZZY_CLI_INSTALL_COMMAND}
 
-      Claim this one-time bootstrap; the JSON response carries the access token:
+      Claim this one-time bootstrap; the JSON response carries the access token, account slug, base URL, and board ID:
       #{agent_bootstrap_claim_command(agent_bootstrap)}
 
-      Configure the CLI with the token, account slug, and base URL from the response:
+      Configure the CLI with those values:
       fizzy auth login TOKEN --profile ACCOUNT_SLUG --account ACCOUNT_SLUG --api-url BASE_URL
+      export FIZZY_BOARD=BOARD_ID
 
       Verify access and load the Fizzy skill:
       fizzy auth status
